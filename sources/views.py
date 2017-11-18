@@ -1,5 +1,6 @@
 import sys
 from PyQt5.QtWidgets import *
+import PyQt5.QtGui
 
 class MainWindow(QWidget):
     '''
@@ -18,6 +19,8 @@ class MainWindow(QWidget):
 
         #ここから左カラムの作成
         left_container = QFrame()
+        left_container.setFrameStyle(1)
+        left_container.setFrameShadow(QFrame.Sunken)
         left = QVBoxLayout(left_container)
 
         #ラベル作成
@@ -45,6 +48,8 @@ class MainWindow(QWidget):
 
         #ここから右カラムの作成
         right_container = QFrame()
+        right_container.setFrameStyle(1)
+        right_container.setFrameShadow(QFrame.Sunken)
         right = QGridLayout(right_container)
 
         #ラベル作成
@@ -71,8 +76,10 @@ class MainWindow(QWidget):
         right.addWidget(OKbutton,2,2)
 
 
+
         #大枠の配置
         outer_layout.addWidget(left_container)
+        outer_layout.addStretch(1)
         outer_layout.addWidget(right_container)
 
         self.setLayout(outer_layout)
