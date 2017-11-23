@@ -45,7 +45,26 @@ class MainWindow(QWidget):
         left.addWidget(add_to_cart_button)
         left.addStretch(10)
 
+        #middleのカート
+        lbl21 = QLabel("カート", self)
 
+
+        #middleのチェックボックス
+        lbl22 = QLabel("配送", self)
+
+        check21 = QCheckBox("配送(￥５００）", self)
+
+        middle_container = QFrame()
+        middle_container.setFrameStyle(1)
+        middle_container.setFrameShadow(QFrame.Sunken) 
+        middle = QVBoxLayout(middle_container)
+
+        #middleのwidget配置
+        middle.addWidget(lbl21)
+        middle.addWidget(lbl22)
+        middle.addStretch(1)
+        middle.addWidget(check21)
+       
         #ここから右カラムの作成
         right_container = QFrame()
         right_container.setFrameStyle(1)
@@ -79,7 +98,7 @@ class MainWindow(QWidget):
 
         #大枠の配置
         outer_layout.addWidget(left_container)
-        outer_layout.addStretch(1)
+        outer_layout.addWidget(middle_container)
         outer_layout.addWidget(right_container)
 
         self.setLayout(outer_layout)
