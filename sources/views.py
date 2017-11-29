@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import *
 import PyQt5.QtGui
+from excelio import ExcelQtConverter
 
 class MainWindow(QWidget):
     '''
@@ -13,6 +14,10 @@ class MainWindow(QWidget):
         メインウィンドウの設定
         '''
         super().__init__()
+        self.init_UI()
+        self.show_tree()
+
+    def init_UI(self):
         self.setWindowTitle('電卓的な練習の模倣')
 
         outer_layout = QHBoxLayout()
@@ -45,25 +50,32 @@ class MainWindow(QWidget):
         left.addWidget(add_to_cart_button)
         left.addStretch(10)
 
+        #middleの
+        middle_container = QFrame()
+        middle_container.setFrameStyle(1)
+        middle_container.setFrameShadow(QFrame.Sunken) 
+        middle = QVBoxLayout(middle_container) 
         #middleのカート
         lbl21 = QLabel("カート", self)
 
+        #ツリー
+        self.item_list = QTreeView(self)
 
         #middleのチェックボックス
         lbl22 = QLabel("配送", self)
 
         check21 = QCheckBox("配送(￥５００）", self)
 
-        middle_container = QFrame()
-        middle_container.setFrameStyle(1)
-        middle_container.setFrameShadow(QFrame.Sunken) 
-        middle = QVBoxLayout(middle_container)
+       
+       
 
         #middleのwidget配置
         middle.addWidget(lbl21)
+        middle.addWidget(self.item_list)
+        #middle.addStretch(1)
         middle.addWidget(lbl22)
-        middle.addStretch(1)
         middle.addWidget(check21)
+         
        
         #ここから右カラムの作成
         right_container = QFrame()
@@ -105,6 +117,15 @@ class MainWindow(QWidget):
 
 
         self.show()
+
+    def show_tree(self):
+        '''
+        エクセルファイルを読み込むよ！
+        '''
+        cvtr = ExcelQtConverter('Python リサイクル市 会計用.xlsx')
+        inventory = cvtr.to_model('会計録')
+        self.item_list.setModel(inventory)
+
 
     def calc_on_click(self):
        # self.a = Do_not_touch_me()
