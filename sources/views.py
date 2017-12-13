@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import *
-import PyQt5.QtGui
 from excelio import ExcelQtConverter
+from PyQt5.QtGui import QStandardItem
 
 class MainWindow(QWidget):
     '''
@@ -123,8 +123,8 @@ class MainWindow(QWidget):
         エクセルファイルを読み込むよ！
         '''
         cvtr = ExcelQtConverter('Python リサイクル市 会計用.xlsx')
-        inventory = cvtr.to_model('会計録')
-        self.item_list.setModel(inventory)
+        self.inventory = cvtr.to_model('会計録')
+        self.item_list.setModel(self.inventory)
 
 
     def calc_on_click(self):
@@ -137,7 +137,11 @@ class MainWindow(QWidget):
         print(p,m,change)
 
     def pass_on_click(self):
-        pass
+        item_num = self.txtbox11.text()
+        qt_item = QStandardItem()
+        qt_item.setText(item_num)
+        self.inventory.setItem(0, 0, qt_item)
+
         
 def Calc(price, money):
     return money - price
