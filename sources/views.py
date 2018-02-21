@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import *
 from excelio import ExcelQtConverter
-from PyQt5.QtGui import QStandardItem
+from PyQt5.QtGui import QStandardItem, QStandardItemModel
 
 class MainWindow(QWidget):
     '''
@@ -15,11 +15,12 @@ class MainWindow(QWidget):
         '''
         super().__init__()
         self.init_UI()
-        self.show_tree()
+        self.make_cart_model()
+        
 
     def init_UI(self):
         self.setWindowTitle('電卓的な練習の模倣')
-
+        
         outer_layout = QHBoxLayout()
 
         #ここから左カラムの作成
@@ -38,7 +39,7 @@ class MainWindow(QWidget):
 
         #ボタン作成
         add_to_cart_button = QPushButton("カートに追加",self)
-        add_to_cart_button.clicked.connect(self.pass_on_click)
+        add_to_cart_button.clicked.connect(self.add_to_cart)
 
         #leftのwidget配置
         left.addWidget(lbl11)
@@ -59,7 +60,7 @@ class MainWindow(QWidget):
         lbl21 = QLabel("カート", self)
 
         #ツリー
-        self.item_list = QTreeView(self)
+        self.cart_view = QTreeView(self)
 
         #middleのチェックボックス
         lbl22 = QLabel("配送", self)
@@ -71,7 +72,7 @@ class MainWindow(QWidget):
 
         #middleのwidget配置
         middle.addWidget(lbl21)
-        middle.addWidget(self.item_list)
+        middle.addWidget(self.cart_view)
         #middle.addStretch(1)
         middle.addWidget(lbl22)
         middle.addWidget(check21)
@@ -118,13 +119,21 @@ class MainWindow(QWidget):
 
         self.show()
 
-    def show_tree(self):
-        '''
-        エクセルファイルを読み込むよ！
-        '''
-        cvtr = ExcelQtConverter('Python リサイクル市 会計用.xlsx')
-        self.inventory = cvtr.to_model('会計録')
-        self.item_list.setModel(self.inventory)
+
+##    def make_full_item_list(self):
+##        #エクセルファイルのrawをQStandardItemModelに変換するよ！       
+##        cvtr = ExcelQtConverter('Python リサイクル市 会計用.xlsx')
+##        self.inventory = cvtr.to_model('会計録')
+##        self.item_list.setModel(self.inventory)
+
+    def make_cart_model(self):
+        self.cart_model = QStandardItemModel()
+        self.cart_view.setModel(self.cart_model)
+        self.cart_model.setHorizontalHeaderLabels(["商品番号", "商品名", "価格"])
+        
+        
+    def reset_cart(self):
+        pass
 
 
     def calc_on_click(self):
@@ -136,11 +145,19 @@ class MainWindow(QWidget):
 
         print(p,m,change)
 
+    def add_to_cart(self):
+        item_num = self.txtbox11.text()
+        qt_item = QStandardItem()
+        qt_item.setText(item_num)
+        self.cart_model.setItem(0, 0, qt_item)
+
+    '''
     def pass_on_click(self):
         item_num = self.txtbox11.text()
         qt_item = QStandardItem()
         qt_item.setText(item_num)
         self.inventory.setItem(0, 0, qt_item)
+    '''
 
         
 def Calc(price, money):
