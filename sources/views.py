@@ -2,6 +2,8 @@ import sys
 from PyQt5.QtWidgets import *
 from excelio import ExcelQtConverter
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
+from PyQt5.QtCore import Qt
+import openpyxl
 
 class MainWindow(QWidget):
     '''
@@ -16,10 +18,18 @@ class MainWindow(QWidget):
         super().__init__()
         self.init_UI()
         self.make_cart_model()
-        
+
+        #カートに追加するための操作。予めExcelファイルを開いておく方が、add_to_cartで毎回開くより早いことが判明。
+        self.cart_row = 0
+        book = openpyxl.load_workbook('Python リサイクル市 会計用 Er.xlsx', data_only = True)
+        self.sheet = book.get_sheet_by_name('raw')
+
+        self.total_price = 0
 
     def init_UI(self):
-        self.setWindowTitle('電卓的な練習の模倣')
+        self.setWindowTitle('読込テスト2')
+
+        
         
         outer_layout = QHBoxLayout()
 
@@ -65,7 +75,8 @@ class MainWindow(QWidget):
         #middleのチェックボックス
         lbl22 = QLabel("配送", self)
 
-        check21 = QCheckBox("配送(￥５００）", self)
+        self.check21 = QCheckBox("配送(\\500)", self)
+        self.check21.stateChanged.connect(self.select_delivery)
 
        
        
@@ -75,7 +86,7 @@ class MainWindow(QWidget):
         middle.addWidget(self.cart_view)
         #middle.addStretch(1)
         middle.addWidget(lbl22)
-        middle.addWidget(check21)
+        middle.addWidget(self.check21)
          
        
         #ここから右カラムの作成
@@ -120,11 +131,14 @@ class MainWindow(QWidget):
         self.show()
 
 
+
 ##    def make_full_item_list(self):
 ##        #エクセルファイルのrawをQStandardItemModelに変換するよ！       
 ##        cvtr = ExcelQtConverter('Python リサイクル市 会計用.xlsx')
-##        self.inventory = cvtr.to_model('会計録')
+##        self.inventory = cvtr.to_model('raw')
 ##        self.item_list.setModel(self.inventory)
+        
+        
 
     def make_cart_model(self):
         self.cart_model = QStandardItemModel()
@@ -145,11 +159,104 @@ class MainWindow(QWidget):
 
         print(p,m,change)
 
+
+    def select_delivery(self,state):
+        if Qt.Checked == state:
+            self.total_price += 500
+        elif Qt.Unchecked == state:
+            self.total_price -= 500
+
+        self.txtbox1.setText(str(self.total_price))
+            
+        
+
+##    def add_to_cart(self):
+##        self.item_num = self.txtbox11.text()
+##        qt_item1 = QStandardItem()
+##        qt_item2 = QStandardItem()
+##        qt_item3 = QStandardItem()
+##        qt_item1.setText(self.item_num)
+##        qt_item2.setText(self.product_name)
+##        qt_item3.setText(self.product_price)
+##        self.cart_model.setItem(0, 0, qt_item1)
+##        self.cart_model.setItem(0, 1, qt_item2)
+##        self.cart_model.setItem(0, 2, qt_item3)
+        
+        
     def add_to_cart(self):
-        item_num = self.txtbox11.text()
-        qt_item = QStandardItem()
-        qt_item.setText(item_num)
-        self.cart_model.setItem(0, 0, qt_item)
+
+        self.item_num = self.txtbox11.text()
+        
+        if self.item_num == "":
+            pass
+        else:
+            
+            #読込2では、__init__した時点でExcelファイルを開いて少しでもレジ打ち動作を早めようとしている。
+            #そのため、位置だけでなく変数にself.を加えるなど若干の変数名変更がある。
+            
+            
+            #入力された商品番号をExcelファイルから直接検索する
+            
+
+            #ヘッダーを除いて順番に読み込む
+            for row in range(2, self.sheet.max_row+1):
+            
+            #本当は直接、if self.product_id == self.item_numにして、商品番号と一致した時点で読み込みをbreakして
+            #その時点におけるproduct_nameとproduct_priceをQStandardItemに変換して表示できればいいんだけど、
+            #どうも一度number = int(self.item_num)を挟まないと上手くbreakが行われず、
+            #Excelファイルの最後の商品（ホーロー容器01）が表示されてしまう。
+            #Excelファイルの最後の行にエラー番号を付加し、
+            #実在しない商品番号(桁は不問)を打ち込むとコンソールにエラーを吐いてsetItemされない。clearはされる。
+            #ただ、数字以外を打ち込まれると固まる。
+            #というかなぜか価格はバグで表示されない（価格をコメントアウトしないと動作停止する）
+            #あと、順番に読み込んでいるためか動作が遅い。最初にExcelファイルを開いておくことで多少は改善された。
+
+                self.product_id = self.sheet['A' +str(row)].value
+                self.product_name = self.sheet['B' +str(row)].value
+                self.product_price = self.sheet['C' +str(row)].value
+                number = int(self.item_num)
+
+                #print(self.product_id,self.product_name,self.product_price)#確認用としてコンソールにprintしてもらう(時間かかる)。価格もここまでは大丈夫
+                
+                if self.product_id == 99999:
+                    
+                    error_dialog = QErrorMessage(self)
+                    error_dialog.showMessage('商品番号が見つかりません')
+                    
+ 
+                    
+                elif self.product_id == number:
+                    
+                    qt_item1 = QStandardItem()
+                    qt_item2 = QStandardItem()
+                    qt_item3 = QStandardItem()
+
+                    qt_item1.setText(self.item_num)
+                    qt_item2.setText(self.product_name)
+                    qt_item3.setText(str(self.product_price))#←ここでエラー出るのは、strで指定していないため。
+                    #qt_item3.setText(self.product_name)
+                    
+                    self.cart_model.setItem(self.cart_row, 0, qt_item1)
+                    self.cart_model.setItem(self.cart_row, 1, qt_item2)
+                    self.cart_model.setItem(self.cart_row, 2, qt_item3)
+
+                    self.cart_row +=1
+
+
+                    self.total_price += self.product_price
+                    self.txtbox1.setText(str(self.total_price))
+                    
+                    
+                    break
+                
+            self.txtbox11.clear()
+
+            #self.cart_model_setItemで、座標を(0,0,qt_item1)と指定すると次々その部分に上書きされてしまうため、
+            #__init__で適当な変数を用意して座標とし、アイテムを一つsetItemする毎にその変数を一つずつ大きくしている。
+            #ついでに入力欄をclear(＝消去)している
+
+
+
 
     '''
     def pass_on_click(self):
@@ -163,6 +270,12 @@ class MainWindow(QWidget):
 def Calc(price, money):
     return money - price
 
+
+
+    
+
+
+    
 
 ##class Do_not_touch_me(QWidget):
 ##    #触らないで！と声に出そう
