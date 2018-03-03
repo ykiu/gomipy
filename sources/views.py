@@ -75,6 +75,9 @@ class MainWindow(QWidget):
         #ツリー
         self.cart_view = QTreeView(self)
 
+        reset_cart_button = QPushButton("やり直し", self)
+        reset_cart_button.clicked.connect(self.reset_cart)
+
         #middleのチェックボックス
         lbl22 = QLabel("配送", self)
         self.check21 = QCheckBox("配送(\\500)", self)
@@ -84,6 +87,7 @@ class MainWindow(QWidget):
         middle.addWidget(lbl21)
         middle.addWidget(self.cart_view)
         #middle.addStretch(1)
+        middle.addWidget(reset_cart_button)
         middle.addWidget(lbl22)
         middle.addWidget(self.check21)
          
@@ -242,7 +246,7 @@ class MainWindow(QWidget):
                     self.cart_model.setItem(self.cart_row, 1, qt_item2)
                     self.cart_model.setItem(self.cart_row, 2, qt_item3)
 
-                    self.cart_row +=1
+                    self.cart_row += 1
 
 
                     self.total_price += self.product_price
@@ -257,8 +261,9 @@ class MainWindow(QWidget):
             #__init__で適当な変数を用意して座標とし、アイテムを一つsetItemする毎にその変数を一つずつ大きくしている。
             #ついでに入力欄をclear(＝消去)している
 
-
-
+    def reset_cart(self):
+        self.cart_model.clear()
+        self.txtbox1.setText("0")
 
     '''
     def pass_on_click(self):
