@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QApplication, QHBoxLayout, QFrame, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTreeView, QCheckBox, QGridLayout
+from PyQt5.QtWidgets import QWidget, QApplication, QHBoxLayout, QFrame, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTreeView, QCheckBox, QGridLayout, QErrorMessage
 from excelio import ExcelQtConverter
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
@@ -257,8 +257,11 @@ class MainWindow(QWidget):
 
     def reset_cart(self):
         self.cart_model.clear()
-        self.txtbox1.setText("0")
+        self.cart_row = 0
         self.cart_model.setHorizontalHeaderLabels(["商品番号", "商品名", "価格"])
+        self.total_price = 0
+        self.txtbox1.setText(str(self.total_price))
+        
 
 
     '''
