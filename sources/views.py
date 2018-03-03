@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QWidget, QApplication, QHBoxLayout, QFrame, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTreeView, QCheckBox, QGridLayout
 from excelio import ExcelQtConverter
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
@@ -45,6 +45,7 @@ class MainWindow(QWidget):
 
         #入力バー作成
         self.txtbox11 = QLineEdit(self)
+        self.txtbox11.returnPressed.connect(self.add_to_cart)
         self.txtbox12 = QLineEdit(self)
 
         #ボタン作成
@@ -61,30 +62,32 @@ class MainWindow(QWidget):
         left.addWidget(add_to_cart_button)
         left.addStretch(10)
 
-        #middleの
+
+        #ここから真ん中のカラムの作成
         middle_container = QFrame()
         middle_container.setFrameStyle(1)
         middle_container.setFrameShadow(QFrame.Sunken) 
-        middle = QVBoxLayout(middle_container) 
+        middle = QVBoxLayout(middle_container)
+        
         #middleのカート
         lbl21 = QLabel("カート", self)
 
         #ツリー
         self.cart_view = QTreeView(self)
 
+        reset_cart_button = QPushButton("全てクリア", self)
+        reset_cart_button.clicked.connect(self.reset_cart)
+
         #middleのチェックボックス
         lbl22 = QLabel("配送", self)
-
         self.check21 = QCheckBox("配送(\\500)", self)
         self.check21.stateChanged.connect(self.select_delivery)
-
-       
-       
-
+        
         #middleのwidget配置
         middle.addWidget(lbl21)
         middle.addWidget(self.cart_view)
         #middle.addStretch(1)
+        middle.addWidget(reset_cart_button)
         middle.addWidget(lbl22)
         middle.addWidget(self.check21)
          
@@ -102,7 +105,8 @@ class MainWindow(QWidget):
         self.lbl4 = QLabel("",self)
 
         # 入力バー作成
-        self.txtbox1 = QLineEdit(self)
+        self.txtbox1 = QLabel(self)
+        self.txtbox1.setText("0")
         self.txtbox2 = QLineEdit(self)
 
         # OKボタン作成
@@ -110,14 +114,15 @@ class MainWindow(QWidget):
         OKbutton.clicked.connect(self.calc_on_click)
 
         #rightのwidget配置
-        right.addWidget(lbl1, 0, 0)
-        right.addWidget(lbl2, 1, 0)
-        right.addWidget(lbl3, 2, 0)
-        right.addWidget(self.lbl4, 2, 1)
-        right.addWidget(self.txtbox1,0,1)
-        right.addWidget(self.txtbox2,1,1)
-        right.addWidget(OKbutton,2,2)
-
+        right.setRowStretch(0, 1)
+        right.setRowStretch(4, 1)
+        right.addWidget(lbl1, 1, 0)
+        right.addWidget(lbl2, 2, 0)
+        right.addWidget(lbl3, 3, 0)
+        right.addWidget(self.txtbox1,1,1)
+        right.addWidget(self.txtbox2,2,1)
+        right.addWidget(self.lbl4, 3, 1)        
+        right.addWidget(OKbutton,3,2)
 
 
         #大枠の配置
@@ -145,20 +150,15 @@ class MainWindow(QWidget):
         self.cart_view.setModel(self.cart_model)
         self.cart_model.setHorizontalHeaderLabels(["商品番号", "商品名", "価格"])
         
-        
-    def reset_cart(self):
-        pass
-
-
     def calc_on_click(self):
-       # self.a = Do_not_touch_me()
-        p = int(self.txtbox1.text())
-        m = int(self.txtbox2.text())
-        change = Calc(p, m)
-        self.lbl4.setText(str(change))
-
-        print(p,m,change)
-
+        try:
+            p = int(self.txtbox1.text())
+            m = int(self.txtbox2.text())
+            change = Calc(p, m)
+            self.lbl4.setText(str(change))
+            print(p,m,change)
+        except:
+            pass
 
     def select_delivery(self,state):
         if Qt.Checked == state:
@@ -240,7 +240,7 @@ class MainWindow(QWidget):
                     self.cart_model.setItem(self.cart_row, 1, qt_item2)
                     self.cart_model.setItem(self.cart_row, 2, qt_item3)
 
-                    self.cart_row +=1
+                    self.cart_row += 1
 
 
                     self.total_price += self.product_price
@@ -255,7 +255,10 @@ class MainWindow(QWidget):
             #__init__で適当な変数を用意して座標とし、アイテムを一つsetItemする毎にその変数を一つずつ大きくしている。
             #ついでに入力欄をclear(＝消去)している
 
-
+    def reset_cart(self):
+        self.cart_model.clear()
+        self.txtbox1.setText("0")
+        self.cart_model.setHorizontalHeaderLabels(["商品番号", "商品名", "価格"])
 
 
     '''
