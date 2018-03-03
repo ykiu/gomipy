@@ -75,7 +75,7 @@ class MainWindow(QWidget):
         #ツリー
         self.cart_view = QTreeView(self)
 
-        reset_cart_button = QPushButton("やり直し", self)
+        reset_cart_button = QPushButton("全てクリア", self)
         reset_cart_button.clicked.connect(self.reset_cart)
 
         #middleのチェックボックス
@@ -150,11 +150,6 @@ class MainWindow(QWidget):
         self.cart_view.setModel(self.cart_model)
         self.cart_model.setHorizontalHeaderLabels(["商品番号", "商品名", "価格"])
         
-        
-    def reset_cart(self):
-        pass
-
-
     def calc_on_click(self):
         try:
             p = int(self.txtbox1.text())
@@ -164,7 +159,6 @@ class MainWindow(QWidget):
             print(p,m,change)
         except:
             pass
-
 
     def select_delivery(self,state):
         if Qt.Checked == state:
@@ -264,6 +258,8 @@ class MainWindow(QWidget):
     def reset_cart(self):
         self.cart_model.clear()
         self.txtbox1.setText("0")
+        self.cart_model.setHorizontalHeaderLabels(["商品番号", "商品名", "価格"])
+
 
     '''
     def pass_on_click(self):
