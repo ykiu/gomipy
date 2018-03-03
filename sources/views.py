@@ -45,6 +45,7 @@ class MainWindow(QWidget):
 
         #入力バー作成
         self.txtbox11 = QLineEdit(self)
+        self.txtbox11.returnPressed.connect(self.add_to_cart)
         self.txtbox12 = QLineEdit(self)
 
         #ボタン作成
@@ -61,11 +62,13 @@ class MainWindow(QWidget):
         left.addWidget(add_to_cart_button)
         left.addStretch(10)
 
-        #middleの
+
+        #ここから真ん中のカラムの作成
         middle_container = QFrame()
         middle_container.setFrameStyle(1)
         middle_container.setFrameShadow(QFrame.Sunken) 
-        middle = QVBoxLayout(middle_container) 
+        middle = QVBoxLayout(middle_container)
+        
         #middleのカート
         lbl21 = QLabel("カート", self)
 
@@ -74,13 +77,9 @@ class MainWindow(QWidget):
 
         #middleのチェックボックス
         lbl22 = QLabel("配送", self)
-
         self.check21 = QCheckBox("配送(\\500)", self)
         self.check21.stateChanged.connect(self.select_delivery)
-
-       
-       
-
+        
         #middleのwidget配置
         middle.addWidget(lbl21)
         middle.addWidget(self.cart_view)
@@ -102,7 +101,8 @@ class MainWindow(QWidget):
         self.lbl4 = QLabel("",self)
 
         # 入力バー作成
-        self.txtbox1 = QLineEdit(self)
+        self.txtbox1 = QLabel(self)
+        self.txtbox1.setText("0")
         self.txtbox2 = QLineEdit(self)
 
         # OKボタン作成
@@ -110,14 +110,15 @@ class MainWindow(QWidget):
         OKbutton.clicked.connect(self.calc_on_click)
 
         #rightのwidget配置
-        right.addWidget(lbl1, 0, 0)
-        right.addWidget(lbl2, 1, 0)
-        right.addWidget(lbl3, 2, 0)
-        right.addWidget(self.lbl4, 2, 1)
-        right.addWidget(self.txtbox1,0,1)
-        right.addWidget(self.txtbox2,1,1)
-        right.addWidget(OKbutton,2,2)
-
+        right.setRowStretch(0, 1)
+        right.setRowStretch(4, 1)
+        right.addWidget(lbl1, 1, 0)
+        right.addWidget(lbl2, 2, 0)
+        right.addWidget(lbl3, 3, 0)
+        right.addWidget(self.txtbox1,1,1)
+        right.addWidget(self.txtbox2,2,1)
+        right.addWidget(self.lbl4, 3, 1)        
+        right.addWidget(OKbutton,3,2)
 
 
         #大枠の配置
@@ -151,13 +152,14 @@ class MainWindow(QWidget):
 
 
     def calc_on_click(self):
-       # self.a = Do_not_touch_me()
-        p = int(self.txtbox1.text())
-        m = int(self.txtbox2.text())
-        change = Calc(p, m)
-        self.lbl4.setText(str(change))
-
-        print(p,m,change)
+        try:
+            p = int(self.txtbox1.text())
+            m = int(self.txtbox2.text())
+            change = Calc(p, m)
+            self.lbl4.setText(str(change))
+            print(p,m,change)
+        except:
+            pass
 
 
     def select_delivery(self,state):
