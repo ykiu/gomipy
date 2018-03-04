@@ -47,6 +47,7 @@ class MainWindow(QWidget):
         self.txtbox11 = QLineEdit(self)
         self.txtbox11.returnPressed.connect(self.add_to_cart)
         self.txtbox12 = QLineEdit(self)
+        self.txtbox12.returnPressed.connect(self.add_to_cart)
 
         #ボタン作成
         add_to_cart_button = QPushButton("カートに追加",self)
@@ -233,9 +234,14 @@ class MainWindow(QWidget):
 
                     qt_item1.setText(self.item_num)
                     qt_item2.setText(self.product_name)
-                    qt_item3.setText(str(self.product_price))#←ここでエラー出るのは、strで指定していないため。
-                    #qt_item3.setText(self.product_name)
-                    
+
+                    if self.txtbox12.text() == "":
+                        qt_item3.setText(str(self.product_price))  # ←ここでエラー出るのは、strで指定していないため。
+                        # qt_item3.setText(self.product_name)
+                    else:
+                        self.product_price = int(self.txtbox12.text())
+                        qt_item3.setText(str(self.product_price))
+
                     self.cart_model.setItem(self.cart_row, 0, qt_item1)
                     self.cart_model.setItem(self.cart_row, 1, qt_item2)
                     self.cart_model.setItem(self.cart_row, 2, qt_item3)
@@ -250,6 +256,7 @@ class MainWindow(QWidget):
                     break
                 
             self.txtbox11.clear()
+            self.txtbox12.clear()
 
             #self.cart_model_setItemで、座標を(0,0,qt_item1)と指定すると次々その部分に上書きされてしまうため、
             #__init__で適当な変数を用意して座標とし、アイテムを一つsetItemする毎にその変数を一つずつ大きくしている。
@@ -262,7 +269,11 @@ class MainWindow(QWidget):
         self.check21.setChecked(False)
         self.total_price = 0
         self.txtbox1.setText(str(self.total_price))
-        
+        self.txtbox11.clear()
+        self.txtbox12.clear()
+        self.txtbox2.clear()
+        self.lbl4.setText("")
+
 
 
     '''
