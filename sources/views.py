@@ -259,6 +259,7 @@ class MainWindow(QWidget):
         self.cart_model.clear()
         self.cart_row = 0
         self.cart_model.setHorizontalHeaderLabels(["商品番号", "商品名", "価格"])
+        self.check21.setChecked(False)
         self.total_price = 0
         self.txtbox1.setText(str(self.total_price))
         
