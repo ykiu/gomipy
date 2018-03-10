@@ -5,6 +5,7 @@ from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
 import openpyxl
 from datetime import datetime
+#import pdb; pdb.set_trace()
 
 
 class MainWindow(QWidget):
@@ -290,9 +291,25 @@ class MainWindow(QWidget):
         #手動で訂正する場合は列を削除する必要がある。
         self.writesheet['A' + str(newrow)] = 'customer_num'
         self.writesheet['B' + str(newrow)] = str(datetime.today())
-        self.book.save('Python リサイクル市 会計用 Er.xlsx')
-        #書き込む場合はExcelファイルを閉じておくように。
+        newrow_for_items = newrow
+        for i in range(0, int(self.cart_model.rowCount())):
+            self.writesheet['C' + str(newrow_for_items)] = int(self.cart_model.item(i, 0).text())
+            self.writesheet['D' + str(newrow_for_items)] = self.cart_model.item(i, 1).text()
+            self.writesheet['E' + str(newrow_for_items)] = int(self.cart_model.item(i, 2).text())
+            newrow_for_items += 1
+            import pdb; pdb.set_trace()
 
+        if self.check21.isChecked:
+            self.writesheet['C' + str(newrow_for_items)] = 'NONE'
+            self.writesheet['D' + str(newrow_for_items)] = '配送料'
+            self.writesheet['E' + str(newrow_for_items)] = 500
+            newrow_for_items += 1
+        else:
+            pass
+            
+        self.book.save('Python リサイクル市 会計用 Er.xlsx')
+        self.reset_cart()
+        #書き込む場合はExcelファイルを閉じておくように。
     
     '''
     def pass_on_click(self):
