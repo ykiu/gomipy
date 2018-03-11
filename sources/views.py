@@ -121,7 +121,7 @@ class MainWindow(QWidget):
         OKbutton.clicked.connect(self.calc_on_click)
 
         # 記録ボタン作成
-        LOGbutton = QPushButton("LOG", self)
+        LOGbutton = QPushButton("記帳", self)
         LOGbutton.clicked.connect(self.write_to_Excel)
 
         #rightのwidget配置
