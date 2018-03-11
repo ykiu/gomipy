@@ -309,6 +309,7 @@ class MainWindow(QWidget):
             pass
             
         self.customersheet['A' + str(self.customer_number + 1)] = self.customer_number
+        self.customer_number += 1
         self.book.save('Python リサイクル市 会計用 Er.xlsx')
         self.reset_cart()
         #書き込む場合はExcelファイルを閉じておくように。
