@@ -4,6 +4,9 @@ from excelio import ExcelQtConverter
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
 import openpyxl
+from datetime import datetime
+#import pdb; pdb.set_trace()
+
 
 class MainWindow(QWidget):
     '''
@@ -21,10 +24,13 @@ class MainWindow(QWidget):
 
         #カートに追加するための操作。予めExcelファイルを開いておく方が、add_to_cartで毎回開くより早いことが判明。
         self.cart_row = 0
-        book = openpyxl.load_workbook('Python リサイクル市 会計用 Er.xlsx', data_only = True)
-        self.sheet = book.get_sheet_by_name('raw')
+        self.book = openpyxl.load_workbook('Python リサイクル市 会計用 Er.xlsx', data_only = True)
+        self.readsheet = self.book.get_sheet_by_name('raw')
+        self.writesheet = self.book.get_sheet_by_name('会計録')
+        self.customersheet = self.book.get_sheet_by_name('customer_no')
 
         self.total_price = 0
+        self.set_customer_number()
 
     def init_UI(self):
         self.setWindowTitle('読込テスト2')
@@ -114,6 +120,10 @@ class MainWindow(QWidget):
         OKbutton = QPushButton("OK", self)
         OKbutton.clicked.connect(self.calc_on_click)
 
+        # 記録ボタン作成
+        LOGbutton = QPushButton("記帳", self)
+        LOGbutton.clicked.connect(self.write_to_Excel)
+
         #rightのwidget配置
         right.setRowStretch(0, 1)
         right.setRowStretch(4, 1)
@@ -124,6 +134,7 @@ class MainWindow(QWidget):
         right.addWidget(self.txtbox2,2,1)
         right.addWidget(self.lbl4, 3, 1)        
         right.addWidget(OKbutton,3,2)
+        right.addWidget(LOGbutton,5,2)
 
 
         #大枠の配置
@@ -200,7 +211,7 @@ class MainWindow(QWidget):
             
 
             #ヘッダーを除いて順番に読み込む
-            for row in range(2, self.sheet.max_row+1):
+            for row in range(2, self.readsheet.max_row+1):
             
             #本当は直接、if self.product_id == self.item_numにして、商品番号と一致した時点で読み込みをbreakして
             #その時点におけるproduct_nameとproduct_priceをQStandardItemに変換して表示できればいいんだけど、
@@ -212,9 +223,9 @@ class MainWindow(QWidget):
             #というかなぜか価格はバグで表示されない（価格をコメントアウトしないと動作停止する）
             #あと、順番に読み込んでいるためか動作が遅い。最初にExcelファイルを開いておくことで多少は改善された。
 
-                self.product_id = self.sheet['A' +str(row)].value
-                self.product_name = self.sheet['B' +str(row)].value
-                self.product_price = self.sheet['C' +str(row)].value
+                self.product_id = self.readsheet['A' +str(row)].value
+                self.product_name = self.readsheet['B' +str(row)].value
+                self.product_price = self.readsheet['C' +str(row)].value
                 number = int(self.item_num)
 
                 #print(self.product_id,self.product_name,self.product_price)#確認用としてコンソールにprintしてもらう(時間かかる)。価格もここまでは大丈夫
@@ -262,6 +273,8 @@ class MainWindow(QWidget):
             #__init__で適当な変数を用意して座標とし、アイテムを一つsetItemする毎にその変数を一つずつ大きくしている。
             #ついでに入力欄をclear(＝消去)している
 
+    
+
     def reset_cart(self):
         self.cart_model.clear()
         self.cart_row = 0
@@ -273,9 +286,50 @@ class MainWindow(QWidget):
         self.txtbox12.clear()
         self.txtbox2.clear()
         self.lbl4.setText("")
+        
+    def write_to_Excel(self):
+        newrow = self.writesheet.max_row + 1
+        #max_row は一度入力されdelで値が削除されたセルも使用済みと認識するため
+        #手動で訂正する場合は列を削除する必要がある。
+        self.writesheet['A' + str(newrow)] = int(self.customer_number)
+        self.writesheet['B' + str(newrow)] = str(datetime.today())
+        newrow_for_items = newrow
+        for i in range(0, int(self.cart_model.rowCount())):
+            self.writesheet['C' + str(newrow_for_items)] = int(self.cart_model.item(i, 0).text())
+            self.writesheet['D' + str(newrow_for_items)] = self.cart_model.item(i, 1).text()
+            self.writesheet['E' + str(newrow_for_items)] = int(self.cart_model.item(i, 2).text())
+            newrow_for_items += 1
+
+        if self.check21.isChecked():
+            self.writesheet['C' + str(newrow_for_items)] = 'NONE'
+            self.writesheet['D' + str(newrow_for_items)] = '配送料'
+            self.writesheet['E' + str(newrow_for_items)] = 500
+            newrow_for_items += 1
+        else:
+            pass
+            
+        self.customersheet['A' + str(self.customer_number + 1)] = self.customer_number
+        self.customer_number += 1
+        self.book.save('Python リサイクル市 会計用 Er.xlsx')
+        self.reset_cart()
+        #書き込む場合はExcelファイルを閉じておくように。
 
 
+    def set_customer_number(self):
+        #会計録シートのA列の最後に使用されているセルの番号を読取るコードを書きたかったが、
+        #会計録シートで列の最後に使用されているセルを取得するlen(ws[row])では
+        #書込時使用された他の列の行の最大値になってしまうため新しくシートを増やした。
+        #手動で修正する場合は列の削除をしなければならない。
+        #改善の余地あり...
+        row_len = len(self.customersheet['A'])
+        if row_len == 1:
+            self.customer_number = 1
+        else:
+            self.customer_number = self.customersheet['A' +str(row_len)].value + 1
 
+                
+
+        
     '''
     def pass_on_click(self):
         item_num = self.txtbox11.text()
@@ -289,11 +343,6 @@ def Calc(price, money):
     return money - price
 
 
-
-    
-
-
-    
 
 ##class Do_not_touch_me(QWidget):
 ##    #触らないで！と声に出そう
