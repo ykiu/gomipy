@@ -27,8 +27,10 @@ class MainWindow(QWidget):
         self.book = openpyxl.load_workbook('Python リサイクル市 会計用 Er.xlsx', data_only = True)
         self.readsheet = self.book.get_sheet_by_name('raw')
         self.writesheet = self.book.get_sheet_by_name('会計録')
+        self.customersheet = self.book.get_sheet_by_name('customer_no')
 
         self.total_price = 0
+        self.set_customer_number()
 
     def init_UI(self):
         self.setWindowTitle('読込テスト2')
@@ -289,7 +291,7 @@ class MainWindow(QWidget):
         newrow = self.writesheet.max_row + 1
         #max_row は一度入力されdelで値が削除されたセルも使用済みと認識するため
         #手動で訂正する場合は列を削除する必要がある。
-        self.writesheet['A' + str(newrow)] = 'customer_num'
+        self.writesheet['A' + str(newrow)] = int(self.customer_number)
         self.writesheet['B' + str(newrow)] = str(datetime.today())
         newrow_for_items = newrow
         for i in range(0, int(self.cart_model.rowCount())):
@@ -297,9 +299,8 @@ class MainWindow(QWidget):
             self.writesheet['D' + str(newrow_for_items)] = self.cart_model.item(i, 1).text()
             self.writesheet['E' + str(newrow_for_items)] = int(self.cart_model.item(i, 2).text())
             newrow_for_items += 1
-            import pdb; pdb.set_trace()
 
-        if self.check21.isChecked:
+        if self.check21.isChecked():
             self.writesheet['C' + str(newrow_for_items)] = 'NONE'
             self.writesheet['D' + str(newrow_for_items)] = '配送料'
             self.writesheet['E' + str(newrow_for_items)] = 500
@@ -307,10 +308,27 @@ class MainWindow(QWidget):
         else:
             pass
             
+        self.customersheet['A' + str(self.customer_number + 1)] = self.customer_number
         self.book.save('Python リサイクル市 会計用 Er.xlsx')
         self.reset_cart()
         #書き込む場合はExcelファイルを閉じておくように。
-    
+
+
+    def set_customer_number(self):
+        #会計録シートのA列の最後に使用されているセルの番号を読取るコードを書きたかったが、
+        #会計録シートで列の最後に使用されているセルを取得するlen(ws[row])では
+        #書込時使用された他の列の行の最大値になってしまうため新しくシートを増やした。
+        #手動で修正する場合は列の削除をしなければならない。
+        #改善の余地あり...
+        row_len = len(self.customersheet['A'])
+        if row_len == 1:
+            self.customer_number = 1
+        else:
+            self.customer_number = self.customersheet['A' +str(row_len)].value + 1
+
+                
+
+        
     '''
     def pass_on_click(self):
         item_num = self.txtbox11.text()
