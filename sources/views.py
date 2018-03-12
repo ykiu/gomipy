@@ -198,8 +198,7 @@ class MainWindow(QWidget):
     def add_to_cart(self):
 
         try:
-            self.item_num = self.txtbox11.text()        
-            if self.item_num == "":
+            if self.txtbox11.text() == "":
                 pass
             else:
                 
@@ -226,7 +225,7 @@ class MainWindow(QWidget):
                     self.product_id = self.readsheet['A' +str(row)].value
                     self.product_name = self.readsheet['B' +str(row)].value
                     self.product_price = self.readsheet['C' +str(row)].value
-                    number = int(self.item_num)
+                    number = int(self.txtbox11.text())
 
                     #print(self.product_id,self.product_name,self.product_price)#確認用としてコンソールにprintしてもらう(時間かかる)。価格もここまでは大丈夫
                     
@@ -243,7 +242,7 @@ class MainWindow(QWidget):
                         qt_item2 = QStandardItem()
                         qt_item3 = QStandardItem()
 
-                        qt_item1.setText(self.item_num)
+                        qt_item1.setText(self.txtbox11.text())
                         qt_item2.setText(self.product_name)
 
                         if self.txtbox12.text() == "":
