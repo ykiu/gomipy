@@ -201,7 +201,7 @@ class MainWindow(QWidget):
             if self.txtbox11.text() == "":
                 pass
             else:
-                
+                number = int(self.txtbox11.text())
                 #読込2では、__init__した時点でExcelファイルを開いて少しでもレジ打ち動作を早めようとしている。
                 #そのため、位置だけでなく変数にself.を加えるなど若干の変数名変更がある。
                 
@@ -225,7 +225,6 @@ class MainWindow(QWidget):
                     self.product_id = self.readsheet['A' +str(row)].value
                     self.product_name = self.readsheet['B' +str(row)].value
                     self.product_price = self.readsheet['C' +str(row)].value
-                    number = int(self.txtbox11.text())
 
                     #print(self.product_id,self.product_name,self.product_price)#確認用としてコンソールにprintしてもらう(時間かかる)。価格もここまでは大丈夫
                     
