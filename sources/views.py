@@ -25,9 +25,9 @@ class MainWindow(QWidget):
         #カートに追加するための操作。予めExcelファイルを開いておく方が、add_to_cartで毎回開くより早いことが判明。
         self.cart_row = 0
         self.book = openpyxl.load_workbook('Python リサイクル市 会計用 Er.xlsx', data_only = True)
-        self.readsheet = self.book.get_sheet_by_name('raw')
-        self.writesheet = self.book.get_sheet_by_name('会計録')
-        self.customersheet = self.book.get_sheet_by_name('customer_no')
+        self.readsheet = self.book['raw']
+        self.writesheet = self.book['会計録']
+        self.customersheet = self.book['customer_no']
 
         self.total_price = 0
         self.set_customer_number()
