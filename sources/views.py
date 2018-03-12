@@ -199,6 +199,12 @@ class MainWindow(QWidget):
 
         try:
             number = int(self.txtbox11.text())
+
+        except:
+            if not self.txtbox11.text() == "":
+                disabled_dialog = QMessageBox.information(self, 'エラー 無効な入力', '半角数字を入力してください', QMessageBox.Ok)
+
+        else:
             #読込2では、__init__した時点でExcelファイルを開いて少しでもレジ打ち動作を早めようとしている。
             #そのため、位置だけでなく変数にself.を加えるなど若干の変数名変更がある。
             
@@ -260,9 +266,6 @@ class MainWindow(QWidget):
                     
                     
                     break
-        except:
-            if not self.txtbox11.text() == "":
-                disabled_dialog = QMessageBox.information(self, 'エラー 無効な入力', '半角数字を入力してください', QMessageBox.Ok)
                     
         self.txtbox11.clear()
         self.txtbox12.clear()
