@@ -200,7 +200,7 @@ class MainWindow(QWidget):
         try:
             number = int(self.txtbox11.text())
 
-        except:
+        except ValueError:
             if not self.txtbox11.text() == "":
                 disabled_dialog = QMessageBox.information(self, 'エラー 無効な入力', '半角数字を入力してください', QMessageBox.Ok)
 
