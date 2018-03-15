@@ -198,75 +198,74 @@ class MainWindow(QWidget):
     def add_to_cart(self):
 
         try:
-            self.item_num = self.txtbox11.text()        
-            if self.item_num == "":
-                pass
-            else:
-                
-                #読込2では、__init__した時点でExcelファイルを開いて少しでもレジ打ち動作を早めようとしている。
-                #そのため、位置だけでなく変数にself.を加えるなど若干の変数名変更がある。
-                
-                
-                #入力された商品番号をExcelファイルから直接検索する
-                
+            number = int(self.txtbox11.text())
 
-                #ヘッダーを除いて順番に読み込む
-                for row in range(2, self.readsheet.max_row+1):
+        except ValueError:
+            if not self.txtbox11.text() == "":
+                disabled_dialog = QMessageBox.information(self, 'エラー 無効な入力', '半角数字を入力してください', QMessageBox.Ok)
+
+        else:
+            #読込2では、__init__した時点でExcelファイルを開いて少しでもレジ打ち動作を早めようとしている。
+            #そのため、位置だけでなく変数にself.を加えるなど若干の変数名変更がある。
+            
+            
+            #入力された商品番号をExcelファイルから直接検索する
+            
+
+            #ヘッダーを除いて順番に読み込む
+            for row in range(2, self.readsheet.max_row+1):
+            
+            #本当は直接、if self.product_id == self.item_numにして、商品番号と一致した時点で読み込みをbreakして
+            #その時点におけるproduct_nameとproduct_priceをQStandardItemに変換して表示できればいいんだけど、
+            #どうも一度number = int(self.item_num)を挟まないと上手くbreakが行われず、
+            #Excelファイルの最後の商品（ホーロー容器01）が表示されてしまう。
+            #Excelファイルの最後の行にエラー番号を付加し、
+            #実在しない商品番号(桁は不問)を打ち込むとコンソールにエラーを吐いてsetItemされない。clearはされる。
+            #ただ、数字以外を打ち込まれると固まる。
+            #というかなぜか価格はバグで表示されない（価格をコメントアウトしないと動作停止する）
+            #あと、順番に読み込んでいるためか動作が遅い。最初にExcelファイルを開いておくことで多少は改善された。
+
+                self.product_id = self.readsheet['A' +str(row)].value
+                self.product_name = self.readsheet['B' +str(row)].value
+                self.product_price = self.readsheet['C' +str(row)].value
+
+                #print(self.product_id,self.product_name,self.product_price)#確認用としてコンソールにprintしてもらう(時間かかる)。価格もここまでは大丈夫
                 
-                #本当は直接、if self.product_id == self.item_numにして、商品番号と一致した時点で読み込みをbreakして
-                #その時点におけるproduct_nameとproduct_priceをQStandardItemに変換して表示できればいいんだけど、
-                #どうも一度number = int(self.item_num)を挟まないと上手くbreakが行われず、
-                #Excelファイルの最後の商品（ホーロー容器01）が表示されてしまう。
-                #Excelファイルの最後の行にエラー番号を付加し、
-                #実在しない商品番号(桁は不問)を打ち込むとコンソールにエラーを吐いてsetItemされない。clearはされる。
-                #ただ、数字以外を打ち込まれると固まる。
-                #というかなぜか価格はバグで表示されない（価格をコメントアウトしないと動作停止する）
-                #あと、順番に読み込んでいるためか動作が遅い。最初にExcelファイルを開いておくことで多少は改善された。
-
-                    self.product_id = self.readsheet['A' +str(row)].value
-                    self.product_name = self.readsheet['B' +str(row)].value
-                    self.product_price = self.readsheet['C' +str(row)].value
-                    number = int(self.item_num)
-
-                    #print(self.product_id,self.product_name,self.product_price)#確認用としてコンソールにprintしてもらう(時間かかる)。価格もここまでは大丈夫
+                if self.product_id == 99999:
                     
-                    if self.product_id == 99999:
-                        
-                        error_dialog = QMessageBox.information(self, 'エラー 該当なし', '該当商品が見つかりません', QMessageBox.Ok)
+                    error_dialog = QMessageBox.information(self, 'エラー 該当なし', '該当商品が見つかりません', QMessageBox.Ok)
 
-                        
-     
-                        
-                    elif self.product_id == number:
-                        
-                        qt_item1 = QStandardItem()
-                        qt_item2 = QStandardItem()
-                        qt_item3 = QStandardItem()
+                    
+    
+                    
+                elif self.product_id == number:
+                    
+                    qt_item1 = QStandardItem()
+                    qt_item2 = QStandardItem()
+                    qt_item3 = QStandardItem()
 
-                        qt_item1.setText(self.item_num)
-                        qt_item2.setText(self.product_name)
+                    qt_item1.setText(self.txtbox11.text())
+                    qt_item2.setText(self.product_name)
 
-                        if self.txtbox12.text() == "":
-                            qt_item3.setText(str(self.product_price))  # ←ここでエラー出るのは、strで指定していないため。
-                            # qt_item3.setText(self.product_name)
-                        else:
-                            self.product_price = int(self.txtbox12.text())
-                            qt_item3.setText(str(self.product_price))
+                    if self.txtbox12.text() == "":
+                        qt_item3.setText(str(self.product_price))  # ←ここでエラー出るのは、strで指定していないため。
+                        # qt_item3.setText(self.product_name)
+                    else:
+                        self.product_price = int(self.txtbox12.text())
+                        qt_item3.setText(str(self.product_price))
 
-                        self.cart_model.setItem(self.cart_row, 0, qt_item1)
-                        self.cart_model.setItem(self.cart_row, 1, qt_item2)
-                        self.cart_model.setItem(self.cart_row, 2, qt_item3)
+                    self.cart_model.setItem(self.cart_row, 0, qt_item1)
+                    self.cart_model.setItem(self.cart_row, 1, qt_item2)
+                    self.cart_model.setItem(self.cart_row, 2, qt_item3)
 
-                        self.cart_row += 1
+                    self.cart_row += 1
 
 
-                        self.total_price += self.product_price
-                        self.txtbox1.setText(str(self.total_price))
-                        
-                        
-                        break
-        except:
-            disabled_dialog = QMessageBox.information(self, 'エラー 無効な入力', '半角数字を入力してください', QMessageBox.Ok)
+                    self.total_price += self.product_price
+                    self.txtbox1.setText(str(self.total_price))
+                    
+                    
+                    break
                     
         self.txtbox11.clear()
         self.txtbox12.clear()
