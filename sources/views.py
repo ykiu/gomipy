@@ -78,6 +78,10 @@ class MainWindow(QWidget):
         self.cart_view = QTreeView(self)
         reset_cart_button = QPushButton("全てクリア", self)
         reset_cart_button.clicked.connect(self.reset_cart)
+        
+        #削除ボタン
+        delete_item_button = QPushButton("削除",self)
+        delete_item_button.clicked.connect(self.delete_item)
 
         #middleのチェックボックス
         lbl22 = QLabel("配送", self)
@@ -89,6 +93,7 @@ class MainWindow(QWidget):
         middle.addWidget(self.cart_view)
         #middle.addStretch(1)
         middle.addWidget(reset_cart_button)
+        middle.addWidget(delete_item_button)
         middle.addWidget(lbl22)
         middle.addWidget(self.check21)
        
@@ -270,7 +275,23 @@ class MainWindow(QWidget):
             self.customer_number = 1
         else:
             self.customer_number = self.customersheet['A' +str(row_len)].value + 1
+    
+    def delete_item(self):
+        if self.cart_row == 0:
+            pass
+        else:
+            qt_delete = QStandardItem()
+            delete_price = self.cart_model.item(self.cart_row-1, 2).text()
+            qt_delete.setText(delete_price)
+            try:
+                  #print(delete_price)
+                  self.total_price -= int(delete_price)
+                  self.txtbox1.setText(str(self.total_price))
+                  self.cart_model.removeRow(int(self.cart_row-1))
 
+                  self.cart_row -=1
+            except:
+                print("delete_item_error")
 
 def Calc(price, money):
     return money - price
