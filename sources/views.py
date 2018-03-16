@@ -80,7 +80,7 @@ class MainWindow(QWidget):
         reset_cart_button.clicked.connect(self.reset_cart)
         
         #削除ボタン
-        delete_item_button = QPushButton("削除",self)
+        delete_item_button = QPushButton("ひとつ削除",self)
         delete_item_button.clicked.connect(self.delete_item)
 
         #middleのチェックボックス
@@ -92,8 +92,8 @@ class MainWindow(QWidget):
         middle.addWidget(lbl21)
         middle.addWidget(self.cart_view)
         #middle.addStretch(1)
-        middle.addWidget(reset_cart_button)
         middle.addWidget(delete_item_button)
+        middle.addWidget(reset_cart_button)
         middle.addWidget(lbl22)
         middle.addWidget(self.check21)
        
@@ -113,6 +113,7 @@ class MainWindow(QWidget):
         self.txtbox1 = QLabel(self)
         self.txtbox1.setText("0")
         self.txtbox2 = QLineEdit(self)
+        self.txtbox2.returnPressed.connect(self.calc_on_click)
 
         # OKボタン作成
         OKbutton = QPushButton("OK", self)
