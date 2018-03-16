@@ -1,6 +1,5 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QApplication, QHBoxLayout, QFrame, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTreeView, QCheckBox, QGridLayout, QMessageBox
-from excelio import ExcelQtConverter
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
 import openpyxl
@@ -24,7 +23,7 @@ class MainWindow(QWidget):
 
         #カートに追加するための操作。予めExcelファイルを開いておく方が、add_to_cartで毎回開くより早いことが判明。
         self.cart_row = 0
-        self.book = openpyxl.load_workbook('Python リサイクル市 会計用 Er.xlsx', data_only = True)
+        self.book = openpyxl.load_workbook('Python リサイクル市 会計用.xlsx', data_only = True)
         self.readsheet = self.book['raw']
         self.writesheet = self.book['会計録']
         self.customersheet = self.book['customer_no']
@@ -34,9 +33,6 @@ class MainWindow(QWidget):
 
     def init_UI(self):
         self.setWindowTitle('読込テスト2')
-
-        
-        
         outer_layout = QHBoxLayout()
 
         #ここから左カラムの作成
@@ -68,8 +64,7 @@ class MainWindow(QWidget):
         left.addStretch(2)
         left.addWidget(add_to_cart_button)
         left.addStretch(10)
-
-
+        
         #ここから真ん中のカラムの作成
         middle_container = QFrame()
         middle_container.setFrameStyle(1)
@@ -81,7 +76,6 @@ class MainWindow(QWidget):
 
         #ツリー
         self.cart_view = QTreeView(self)
-
         reset_cart_button = QPushButton("全てクリア", self)
         reset_cart_button.clicked.connect(self.reset_cart)
 
@@ -97,7 +91,6 @@ class MainWindow(QWidget):
         middle.addWidget(reset_cart_button)
         middle.addWidget(lbl22)
         middle.addWidget(self.check21)
-         
        
         #ここから右カラムの作成
         right_container = QFrame()
@@ -136,26 +129,13 @@ class MainWindow(QWidget):
         right.addWidget(OKbutton,3,2)
         right.addWidget(LOGbutton,5,2)
 
-
         #大枠の配置
         outer_layout.addWidget(left_container)
         outer_layout.addWidget(middle_container)
         outer_layout.addWidget(right_container)
 
         self.setLayout(outer_layout)
-
-
         self.show()
-
-
-
-##    def make_full_item_list(self):
-##        #エクセルファイルのrawをQStandardItemModelに変換するよ！       
-##        cvtr = ExcelQtConverter('Python リサイクル市 会計用.xlsx')
-##        self.inventory = cvtr.to_model('raw')
-##        self.item_list.setModel(self.inventory)
-        
-        
 
     def make_cart_model(self):
         self.cart_model = QStandardItemModel()
@@ -168,7 +148,6 @@ class MainWindow(QWidget):
             m = int(self.txtbox2.text())
             change = Calc(p, m)
             self.lbl4.setText(str(change))
-            print(p,m,change)
         except:
             pass
 
@@ -179,21 +158,6 @@ class MainWindow(QWidget):
             self.total_price -= 500
 
         self.txtbox1.setText(str(self.total_price))
-            
-        
-
-##    def add_to_cart(self):
-##        self.item_num = self.txtbox11.text()
-##        qt_item1 = QStandardItem()
-##        qt_item2 = QStandardItem()
-##        qt_item3 = QStandardItem()
-##        qt_item1.setText(self.item_num)
-##        qt_item2.setText(self.product_name)
-##        qt_item3.setText(self.product_price)
-##        self.cart_model.setItem(0, 0, qt_item1)
-##        self.cart_model.setItem(0, 1, qt_item2)
-##        self.cart_model.setItem(0, 2, qt_item3)
-        
         
     def add_to_cart(self):
 
@@ -205,13 +169,7 @@ class MainWindow(QWidget):
                 disabled_dialog = QMessageBox.information(self, 'エラー 無効な入力', '半角数字を入力してください', QMessageBox.Ok)
 
         else:
-            #読込2では、__init__した時点でExcelファイルを開いて少しでもレジ打ち動作を早めようとしている。
-            #そのため、位置だけでなく変数にself.を加えるなど若干の変数名変更がある。
-            
-            
             #入力された商品番号をExcelファイルから直接検索する
-            
-
             #ヘッダーを除いて順番に読み込む
             for row in range(2, self.readsheet.max_row+1):
             
@@ -219,11 +177,7 @@ class MainWindow(QWidget):
             #その時点におけるproduct_nameとproduct_priceをQStandardItemに変換して表示できればいいんだけど、
             #どうも一度number = int(self.item_num)を挟まないと上手くbreakが行われず、
             #Excelファイルの最後の商品（ホーロー容器01）が表示されてしまう。
-            #Excelファイルの最後の行にエラー番号を付加し、
-            #実在しない商品番号(桁は不問)を打ち込むとコンソールにエラーを吐いてsetItemされない。clearはされる。
-            #ただ、数字以外を打ち込まれると固まる。
-            #というかなぜか価格はバグで表示されない（価格をコメントアウトしないと動作停止する）
-            #あと、順番に読み込んでいるためか動作が遅い。最初にExcelファイルを開いておくことで多少は改善された。
+            #順番に読み込んでいるためか動作が遅い。最初にExcelファイルを開いておくことで多少は改善された。
 
                 self.product_id = self.readsheet['A' +str(row)].value
                 self.product_name = self.readsheet['B' +str(row)].value
@@ -231,14 +185,7 @@ class MainWindow(QWidget):
 
                 #print(self.product_id,self.product_name,self.product_price)#確認用としてコンソールにprintしてもらう(時間かかる)。価格もここまでは大丈夫
                 
-                if self.product_id == 99999:
-                    
-                    error_dialog = QMessageBox.information(self, 'エラー 該当なし', '該当商品が見つかりません', QMessageBox.Ok)
-
-                    
-    
-                    
-                elif self.product_id == number:
+                if self.product_id == number:
                     
                     qt_item1 = QStandardItem()
                     qt_item2 = QStandardItem()
@@ -259,23 +206,19 @@ class MainWindow(QWidget):
                     self.cart_model.setItem(self.cart_row, 2, qt_item3)
 
                     self.cart_row += 1
-
-
                     self.total_price += self.product_price
                     self.txtbox1.setText(str(self.total_price))
-                    
-                    
                     break
+
+                elif row == self.readsheet.max_row:
+                    error_dialog = QMessageBox.information(self, 'エラー 該当なし', '該当商品が見つかりません', QMessageBox.Ok)
                     
         self.txtbox11.clear()
         self.txtbox12.clear()
 
                 #self.cart_model_setItemで、座標を(0,0,qt_item1)と指定すると次々その部分に上書きされてしまうため、
                 #__init__で適当な変数を用意して座標とし、アイテムを一つsetItemする毎にその変数を一つずつ大きくしている。
-                #ついでに入力欄をclear(＝消去)している          
-
-
-    
+                #ついでに入力欄をclear(＝消去)している
 
     def reset_cart(self):
         self.cart_model.clear()
@@ -312,10 +255,9 @@ class MainWindow(QWidget):
             
         self.customersheet['A' + str(self.customer_number + 1)] = self.customer_number
         self.customer_number += 1
-        self.book.save('Python リサイクル市 会計用 Er.xlsx')
+        self.book.save('Python リサイクル市 会計用.xlsx')
         self.reset_cart()
         #書き込む場合はExcelファイルを閉じておくように。
-
 
     def set_customer_number(self):
         #会計録シートのA列の最後に使用されているセルの番号を読取るコードを書きたかったが、
@@ -329,33 +271,10 @@ class MainWindow(QWidget):
         else:
             self.customer_number = self.customersheet['A' +str(row_len)].value + 1
 
-                
 
-        
-    '''
-    def pass_on_click(self):
-        item_num = self.txtbox11.text()
-        qt_item = QStandardItem()
-        qt_item.setText(item_num)
-        self.inventory.setItem(0, 0, qt_item)
-    '''
-
-        
 def Calc(price, money):
     return money - price
 
-
-
-##class Do_not_touch_me(QWidget):
-##    #触らないで！と声に出そう
-##
-##    def __init__(self):
-##        super().__init__()
-##        self.setWindowTitle('触らないで！')
-##        self.setGeometry(300, 200, 100, 150)
-##        label = QLabel("触らないで！", self)
-##
-##        self.show()
         
 
 app = QApplication(sys.argv)
