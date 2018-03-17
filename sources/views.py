@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QApplication, QHBoxLayout, QFrame, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTreeView, QCheckBox, QGridLayout, QMessageBox
-from PyQt5.QtGui import QStandardItem, QStandardItemModel
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QIcon
 from PyQt5.QtCore import Qt
 import openpyxl
 from datetime import datetime
@@ -32,7 +32,8 @@ class MainWindow(QWidget):
         self.set_customer_number()
 
     def init_UI(self):
-        self.setWindowTitle('読込テスト2')
+        self.setWindowTitle('リサ市会計')
+        self.setWindowIcon(QIcon('ecoecochan.jpg'))
         outer_layout = QHBoxLayout()
 
         #ここから左カラムの作成
@@ -64,13 +65,13 @@ class MainWindow(QWidget):
         left.addStretch(2)
         left.addWidget(add_to_cart_button)
         left.addStretch(10)
-        
+
         #ここから真ん中のカラムの作成
         middle_container = QFrame()
         middle_container.setFrameStyle(1)
-        middle_container.setFrameShadow(QFrame.Sunken) 
+        middle_container.setFrameShadow(QFrame.Sunken)
         middle = QVBoxLayout(middle_container)
-        
+
         #middleのカート
         lbl21 = QLabel("カート", self)
 
@@ -78,7 +79,7 @@ class MainWindow(QWidget):
         self.cart_view = QTreeView(self)
         reset_cart_button = QPushButton("全てクリア", self)
         reset_cart_button.clicked.connect(self.reset_cart)
-        
+
         #削除ボタン
         delete_item_button = QPushButton("ひとつ削除",self)
         delete_item_button.clicked.connect(self.delete_item)
@@ -87,7 +88,7 @@ class MainWindow(QWidget):
         lbl22 = QLabel("配送", self)
         self.check21 = QCheckBox("配送(\\500)", self)
         self.check21.stateChanged.connect(self.select_delivery)
-        
+
         #middleのwidget配置
         middle.addWidget(lbl21)
         middle.addWidget(self.cart_view)
@@ -96,7 +97,7 @@ class MainWindow(QWidget):
         middle.addWidget(reset_cart_button)
         middle.addWidget(lbl22)
         middle.addWidget(self.check21)
-       
+
         #ここから右カラムの作成
         right_container = QFrame()
         right_container.setFrameStyle(1)
