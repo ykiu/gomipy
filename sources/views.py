@@ -240,31 +240,37 @@ class MainWindow(QWidget):
         self.lbl4.setText("")
         
     def write_to_Excel(self):
-        newrow = self.writesheet.max_row + 1
-        #max_row は一度入力されdelで値が削除されたセルも使用済みと認識するため
-        #手動で訂正する場合は列を削除する必要がある。
-        self.writesheet['A' + str(newrow)] = int(self.customer_number)
-        self.writesheet['B' + str(newrow)] = str(datetime.today())
-        newrow_for_items = newrow
-        for i in range(0, int(self.cart_model.rowCount())):
-            self.writesheet['C' + str(newrow_for_items)] = int(self.cart_model.item(i, 0).text())
-            self.writesheet['D' + str(newrow_for_items)] = self.cart_model.item(i, 1).text()
-            self.writesheet['E' + str(newrow_for_items)] = int(self.cart_model.item(i, 2).text())
-            newrow_for_items += 1
-
-        if self.check21.isChecked():
-            self.writesheet['C' + str(newrow_for_items)] = 'NONE'
-            self.writesheet['D' + str(newrow_for_items)] = '配送料'
-            self.writesheet['E' + str(newrow_for_items)] = 500
-            newrow_for_items += 1
-        else:
+        if self.lbl4.text() == "":
             pass
-            
-        self.customersheet['A' + str(self.customer_number + 1)] = self.customer_number
-        self.customer_number += 1
-        self.book.save('Python リサイクル市 会計用.xlsx')
-        self.reset_cart()
-        #書き込む場合はExcelファイルを閉じておくように。
+        else:
+            try:
+                self.book.save('Python リサイクル市 会計用.xlsx') 
+                newrow = self.writesheet.max_row + 1
+                #max_row は一度入力されdelで値が削除されたセルも使用済みと認識するため
+                #手動で訂正する場合は列を削除する必要がある。
+                self.writesheet['A' + str(newrow)] = int(self.customer_number)
+                self.writesheet['B' + str(newrow)] = str(datetime.today())
+                newrow_for_items = newrow
+                for i in range(0, int(self.cart_model.rowCount())):
+                    self.writesheet['C' + str(newrow_for_items)] = int(self.cart_model.item(i, 0).text())
+                    self.writesheet['D' + str(newrow_for_items)] = self.cart_model.item(i, 1).text()
+                    self.writesheet['E' + str(newrow_for_items)] = int(self.cart_model.item(i, 2).text())
+                    newrow_for_items += 1
+
+                if self.check21.isChecked():
+                    self.writesheet['C' + str(newrow_for_items)] = 'NONE'
+                    self.writesheet['D' + str(newrow_for_items)] = '配送料'
+                    self.writesheet['E' + str(newrow_for_items)] = 500
+                    newrow_for_items += 1
+                else:
+                    pass
+                self.customer_number += 1
+                self.customersheet['A' + str(self.customer_number + 1)] = self.customer_number
+                self.book.save('Python リサイクル市 会計用.xlsx')
+                self.reset_cart()
+                #書き込む場合はExcelファイルを閉じておくように。
+            except PermissionError:
+                error_dialog = QMessageBox.information(self, 'エラー 記帳不可', 'Excelを閉じてください', QMessageBox.Ok)
 
     def set_customer_number(self):
         #会計録シートのA列の最後に使用されているセルの番号を読取るコードを書きたかったが、
