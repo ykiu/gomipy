@@ -244,7 +244,10 @@ class MainWindow(QWidget):
             pass
         else:
             try:
-                self.book.save('Python リサイクル市 会計用.xlsx') 
+                self.book.save('Python リサイクル市 会計用.xlsx')
+                #Excelファイルを閉じずに記帳しようとしてエラーメッセージを受けた後、ファイルを閉じて再度記帳すると、
+                #同じ内容が二度記帳されるバグがあった。
+                #最初にセーブしておくとこれが回避できる。
                 newrow = self.writesheet.max_row + 1
                 #max_row は一度入力されdelで値が削除されたセルも使用済みと認識するため
                 #手動で訂正する場合は列を削除する必要がある。
